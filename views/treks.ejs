@@ -1,15 +1,15 @@
 <% include partials/header %>
     <div class="container">
         <div class="row" style="display:flex; flex-wrap:wrap;">
-            <% pics.forEach(function(pic){%>
+            <% treks.forEach(function(trek){%>
                 <div class="col-md-3 col-sm-6">
-                    <picture>
-                        <img src="<%=pic.image%>" class="img-fluid img-thumbnail">
-                    </picture>
+                    <trekture>
+                        <img src="<%=trek.image%>" class="img-fluid img-thumbnail">
+                    </trekture>
                     <div class="figure-caption text-right">
-                        <h4><%=pic.name%></h4>
+                        <h4><%=trek.name%></h4>
                     </div>
-                    <a href="pics/<%= pic._id %>"><button class="btn btn-outline-primary">More Info</button></a>
+                    <a href="treks/<%= trek._id %>"><button class="btn btn-outline-primary">More Info</button></a>
                 </div>
 
             <%});%>
