@@ -1,0 +1,13 @@
+.bton-theme {
+    color: #3bdf5f;
+    background-color: transparent;
+    background-image: none;
+    border-color:  #6eff8e;
+}
+
+.bton-theme:hover{
+    color: black;
+    background-color:#6eff8e ;
+    background-image: none;
+    border-color:  #6eff8e;
+}

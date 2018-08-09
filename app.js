@@ -1,12 +1,13 @@
 var bodyParser = require("body-parser");
-var mongoose = require("mongoose")
+var mongoose = require("mongoose");
 var express = require("express");
+var path = require('path');
 var app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(__dirname + "/public"));
 
 app.set("view engine", "ejs");
-mongoose.connect("mongodb://localhost/Trekopia")
-
+mongoose.connect("mongodb://localhost:27017/Trekopia", { useNewUrlParser: true });
 
 var trekSchema = new mongoose.Schema({
     name: String,
@@ -14,7 +15,7 @@ var trekSchema = new mongoose.Schema({
     location:String,
     days:Number,
     bestTime:String,
-    images:[String],
+    images:String,
     description: String
 });
 
@@ -29,16 +30,14 @@ app.get("/treks", function (req, res) {
         if (err) {
             console.log(err);
         } else {
-            res.render("treks", { treks: allTreks });
+            console.log(allTrek);
+            res.render("treks", { treks: allTrek });
         }
     });
 });
 
 app.post("/treks", function (req, res) {
-    var name = req.body.name;
-    var image = req.body.image;
-    var desc = req.body.description;
-    var newTrek = { name: name, image: image, description: desc };
+    var newTrek = req.body.trek;
 
     Trek.create(newTrek, function (err) {
         if (err) {
@@ -65,5 +64,5 @@ app.get("/treks/:id", function (req, res) {
 });
 
 app.listen(8080, function () {
-    console.log("Yelpcamp has started");
+    console.log("Trekopia has started");
 });
