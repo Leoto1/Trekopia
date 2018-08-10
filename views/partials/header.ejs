@@ -18,8 +18,12 @@
     <nav class="navbar  navbar-expand-lg navbar-light" style="background-color: #6eff8e;">
         <div class="container">
             <a class="navbar-brand" href="/" style="font-family: 'Amatic SC', cursive; font-size:35px;" >Trekopia</a>
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="nav navbar-nav">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02"
+                aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarTogglerDemo02">
+                <ul class="nav navbar-nav mt-2 mt-lg-0">
                     <li class="nav-item">
                         <a class="nav-link" href="#">Login</a>
                     </li>
@@ -30,14 +34,14 @@
                         <a class="nav-link" href="/treks/new">Create a post</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
+                        <a class="nav-link dropdown-toggle " href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
                             aria-expanded="false">
                             Account
                         </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">Your Account</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Logout</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown"style="background-color: #6eff8e;">
+                            <a class="dropdown-item Toggler" href="#">Your Account</a>
+                            <div class="dropdown-divider" style="border-top-color:rgb(0,0,0,.15);"></div>
+                            <a class="dropdown-item Toggler" href="#">Logout</a>
                         </div>
                     </li>
                     

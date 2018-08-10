@@ -11,3 +11,12 @@
     background-image: none;
     border-color:  #6eff8e;
 }
+
+.Toggler{
+    color:rgb(0,0,0,0.5);
+}
+
+.Toggler:hover{
+    background-color: #6eff8e;
+    color:rgb(0,0,0,0.75);
+}
