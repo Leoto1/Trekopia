@@ -9,6 +9,8 @@ app.use(sessions({
     cookieName:"session",
     secret:"shh-its-a-secret",
     duration:30*60*1000,
+    httpOnly:true,
+    secure:true
 }));
 
 var Comment = require('./models/Comment.js');
