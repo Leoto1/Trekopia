@@ -1,8 +1,15 @@
 var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
 var express = require("express");
-var path = require('path');
+var sessions = require("client-sessions");
 var app = express();
+
+app.use(sessions({
+    cookieName:"session",
+    secret:"shh-its-a-secret",
+    duration:30*60*1000,
+}));
+
 var Comment = require('./models/Comment.js');
 var Trek= require('./models/Trek.js')
 var User = require('./models/User.js')
@@ -84,6 +91,7 @@ app.post("/register", (req, res) => {
             }
             return res.render("register", { error: error });
         }
+        req.session.userId = user._id;
         res.redirect("/treks");
     });
 });
@@ -99,6 +107,8 @@ app.post("/login", (req, res) => {
                 error: "Incorrect email / password."
             });
         }
+        req.session.userId = user._id;
+        console.log(req.session);
         res.redirect("/treks");
     });
 });
