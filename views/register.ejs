@@ -1,0 +1,10 @@
+<% include partials/header %>
+<br>
+    <form action="/register" method="POST">
+        <input class="form-control" type='text' name="user[firstName]" placeholder="First Name">
+        <input class="form-control" type='text' name="user[lastName]" placeholder="Last Name">
+        <input class="form-control" type='email' name="user[email]" placeholder="E-Mail">
+        <input class="form-control" type='password' name="user[password]" placeholder="Password">
+        <button class="form-control btn bton-theme">Sign In</button>
+    </form>
+<% include partials/footer %>

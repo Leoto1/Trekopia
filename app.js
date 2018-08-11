@@ -5,7 +5,7 @@ var path = require('path');
 var app = express();
 var Comment = require('./models/Comment.js');
 var Trek= require('./models/Trek.js')
-
+var User = require('./models/User.js')
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
@@ -71,7 +71,40 @@ app.post("/treks/:id/comments", function (req, res) {
     });
 });
 
+app.get("/register", function (req, res) {
+    res.render('register');
+});
 
-app.listen(8080,'192.168.1.102' ||'localhost', function () {
+app.post("/register", (req, res) => {
+    User.create(req.body.user,(err) => {
+        if (err) {
+            let error = "Something bad happened! Please try again.";
+            if (err.code === 11000) {
+                error = "That email is already taken, please try another.";
+            }
+            return res.render("register", { error: error });
+        }
+        res.redirect("/treks");
+    });
+});
+
+
+app.get("/login",function(req,res){
+    res.render('login');
+})
+app.post("/login", (req, res) => {
+    User.findOne({ email: req.body.user.email }, (err, user) => {
+        if (err || !user || req.body.user.password !== user.password) {
+            return res.render("login", {
+                error: "Incorrect email / password."
+            });
+        }
+        res.redirect("/treks");
+    });
+});
+
+
+
+app.listen(8080, function () {
     console.log("Trekopia has started");
 });
