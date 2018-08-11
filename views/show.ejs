@@ -1,13 +1,48 @@
 <% include partials/header %>
+<div class="container" style="min-width: 80%;">
+ 
+
+    <br>
     <div>
-        <p>
-            <%= pic.name %>
-        </p>
+        <img class="img-fluid" src="<%= trek.images %>">
+    </div>
+    <br>
+    <div class="row">
+        <h3 class="text-left col">
+            <%= trek.name %>
+        </h3>
+        <h5 class="text-right col">
+         ₹ <%= trek.cost%>
+        </h5>
     </div>
     <div>
-        <img src="<%= pic.image %>">
+        <h6 class="text-left">
+            <%= trek.location %>
+        </h6>
     </div>
     <div>
-        <%= pic.description %>
+        <%= trek.description %>
     </div>
+    <hr>
+    <h5>Comments</h5>
+    <br>
+        <% trek.comments.forEach(function(comment){%>
+            <div>
+                <strong><%=comment.author%></strong> - <%=comment.content%>
+            </div>
+            <%}) %>
+    <br>
+    <div>Add a comment</div>
+    <form class="form-group" action="/treks/<%= trek._id%>/comments" method="POST">
+        <div class="form-group">
+
+            <input class="form-control"  style="max-width: 500px;"type="text" name="comment[content]"  placeholder="comment">
+        </div>
+        <div class="form-group">
+
+            <input class="form-control" style="max-width: 200px;"type="text " name="comment[author]" placeholder="name">
+        </div>
+        <button class="btn bton-theme">Submit!</button>
+    </form>
+</div>
     <% include partials/footer %>
