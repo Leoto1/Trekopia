@@ -58,6 +58,7 @@ app.get("/treks", function (req, res) {
 });
 
 app.post("/treks", loginRequired, function (req, res) {
+    req.body.trek.author=req.user;
     var newTrek = req.body.trek;
 
     Trek.create(newTrek, function (err) {
@@ -74,10 +75,11 @@ app.get("/treks/new", loginRequired, function (req, res) {
 });
 
 app.get("/treks/:id", function (req, res) {
-    Trek.findById(req.params.id).populate("comments").exec(function (err, foundTrek) {
+    Trek.findById(req.params.id).populate("author").populate("comments").exec(function (err, foundTrek) {
         if (err) {
             console.log(err);
         } else {
+            console.log(foundTrek)
             res.render("trek/show", { trek: foundTrek });
         }
     });
@@ -87,6 +89,9 @@ app.post("/treks/:id/comments", loginRequired, function (req, res) {
         if (err) {
             console.log(err);
         } else {
+            req.body.comment.author={};
+            req.body.comment.author.id = req.user;
+            req.body.comment.author.name=req.user.firstName+" "+req.user.lastName;
             Comment.create(req.body.comment, function (err, comment) {
                 if (err) {
                     console.log(err);

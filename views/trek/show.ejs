@@ -4,7 +4,7 @@
 
     <br>
     <div>
-        <img class="img-fluid" src="<%= trek.images %>">
+        <img class="img-fluid" style="min-width: 100%; height:auto" src="<%= trek.images %>">
     </div>
     <br>
     <div class="row">
@@ -28,21 +28,21 @@
     <br>
         <% trek.comments.forEach(function(comment){%>
             <div>
-                <strong><%=comment.author%></strong> - <%=comment.content%>
+                <strong><%=comment.author.name%></strong> - <%=comment.content%>
             </div>
             <%}) %>
     <br>
     <div>Add a comment</div>
+    <% if(!currentUser){ %>
+        <div>To adde comment you need to <a href="/login">Log In</a>or<a href="/register">Sign Up</a></div>
+    <% } else { %>
     <form class="form-group" action="/treks/<%= trek._id%>/comments" method="POST">
         <div class="form-group">
 
             <input class="form-control"  style="max-width: 500px;"type="text" name="comment[content]"  placeholder="comment">
         </div>
-        <div class="form-group">
-
-            <input class="form-control" style="max-width: 200px;"type="text " name="comment[author]" placeholder="name">
-        </div>
         <button class="btn bton-theme">Submit!</button>
     </form>
+    <% } %>
 </div>
     <% include ../partials/footer %>
