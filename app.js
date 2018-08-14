@@ -3,7 +3,10 @@ var mongoose = require("mongoose");
 var express = require("express");
 var sessions = require("client-sessions");
 var bcrypt= require('bcryptjs');
+var methodOverride = require("method-override");
 var app = express();
+
+app.use(methodOverride("_method"));
 
 app.use(sessions({
     cookieName:"session",
@@ -51,7 +54,6 @@ app.get("/treks", function (req, res) {
         if (err) {
             console.log(err);
         } else {
-            console.log(req.user);
             res.render("trek/treks", { treks: allTrek });
         }
     });
@@ -79,7 +81,6 @@ app.get("/treks/:id", function (req, res) {
         if (err) {
             console.log(err);
         } else {
-            console.log(foundTrek)
             res.render("trek/show", { trek: foundTrek });
         }
     });
@@ -105,14 +106,92 @@ app.post("/treks/:id/comments", loginRequired, function (req, res) {
     });
 });
 
+
+
+app.get("/treks/:id/edit",isTrekOwned,function(req,res){
+    Trek.findById(req.params.id,function(err,foundTrek){
+            res.render("trek/edit",{trek:foundTrek});
+    });
+});
+
+app.put("/treks/:id",isTrekOwned,function(req,res){
+        Trek.findByIdAndUpdate(req.params.id,req.body.trek,function(err,trek){
+        if(err){
+            console.log(err);
+        }else{
+            res.redirect("/treks/"+trek._id);
+        }
+    });
+});
+
+app.delete("/treks/:id", isTrekOwned,function(req,res){
+        Trek.findByIdAndDelete(req.params.id,function(err,trek){
+        if(err)
+        {
+            console.log(err);
+        }else{
+            res.redirect("/treks");
+        }
+    });
+});
+
+app.get("/treks/:id/comments/:comment_id/edit", isCommentOwned, function (req, res) {
+    Trek.findById(req.params.id, function (err, foundTrek) {
+        if (err) {
+            res.redirect("back");
+        } else {
+            Comment.findById(req.params.comment_id, function (err, foundComment) {
+                if (err) {
+                    res.redirect("back");
+                } else {
+                    res.render("comment/edit", { trek: foundTrek, comment: foundComment });
+                }
+            });
+        }
+    });
+});
+app.put("/treks/:id/comments/:comment_id", isCommentOwned, function (req, res) {
+    Trek.findById(req.params.id, function (err, foundTrek) {
+        if (err) {
+            console.log(err);
+        } else {
+            Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, function (err, foundComment) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    res.redirect("/treks/" + foundTrek._id);
+                }
+            });
+        }
+    });
+});
+
+app.delete("/treks/:id/comments/:comment_id", isCommentOwned, function (req, res) {
+    Trek.findById(req.params.id, function (err, foundTrek) {
+        if (err) {
+            console.log(err);
+        } else {
+            Comment.findByIdAndDelete(req.params.comment_id, function (err, foundComment) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    res.redirect("/treks/" + foundTrek._id);
+                }
+            });
+        }
+    });
+});
+
+
+
 app.get("/register", function (req, res) {
     res.render('register');
 });
 
 app.post("/register", (req, res) => {
-    let hash = bcrypt.hashSync(req.body.user.password,14);
-    req.body.user.password=hash;
-    User.create(req.body.user,(err,user) => {
+    let hash = bcrypt.hashSync(req.body.user.password, 14);
+    req.body.user.password = hash;
+    User.create(req.body.user, (err, user) => {
         if (err) {
             let error = "Something bad happened! Please try again.";
             if (err.code === 11000) {
@@ -125,28 +204,71 @@ app.post("/register", (req, res) => {
     });
 });
 
-
-app.get("/login",function(req,res){
+app.get("/login", function (req, res) {
     res.render('login');
-})
+});
+
 app.post("/login", (req, res) => {
     User.findOne({ email: req.body.user.email }, (err, user) => {
-        if (err || !user || !bcrypt.compareSync(req.body.user.password,user.password)) {
+        if (err || !user || !bcrypt.compareSync(req.body.user.password, user.password)) {
             return res.render("login", {
                 error: "Incorrect email / password."
             });
         }
         req.session.userId = user._id;
-        console.log(req.session);
         res.redirect("/treks");
     });
 });
 
-app.get("/logout",(req,res)=>{
-    req.session.userId=null;
-    req.user=null;
+app.get("/logout", (req, res) => {
+    req.session.userId = null;
+    req.user = null;
     res.redirect("/");
 });
+
+function isCommentOwned(req, res, next) {
+    if (req.user) {
+        Trek.findById(req.params.id, function (err, foundTrek) {
+            if (err) {
+                res.redirect("back");
+            } else {
+                Comment.findById(req.params.comment_id, function (err, foundComment) {
+                    if (err) {
+                        res.redirect("back");
+                    } else {
+                        if (foundComment.author.id.equals(req.user._id)) {
+                            next();
+                        } else if (foundTrek.author.equals(req.user._id)) {
+                            next();
+                        } else {
+                            res.redirect("back");
+                        }
+                    }
+                });
+            }
+        });
+    } else {
+        res.redirect("/login");
+    }
+}
+
+function isTrekOwned(req, res, next) {
+    if (req.user) {
+        Trek.findById(req.params.id, function (err, foundTrek) {
+            if (err) {
+                res.redirect("back");
+            } else {
+                if (foundTrek.author.equals(req.user._id)) {
+                    next();
+                } else {
+                    res.redirect("back");
+                }
+            }
+        });
+    } else {
+        res.redirect("/login");
+    }
+}
 
 function loginRequired(req,res,next){
     if(!req.user){

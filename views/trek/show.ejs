@@ -1,4 +1,15 @@
 <% include ../partials/header %>
+<%if(currentUser && trek.author._id.equals(currentUser._id)){%>
+    <div>
+        <a href="/treks/<%=trek._id%>/edit">
+            <button class="btn btn-outline-primary">Edit</button>
+        </a>
+        <form action="/treks/<%=trek._id%>?_method=DELETE" method="POST">
+            <button class="btn btn-outline-primary">Delete</button>
+        </form>
+    </div>
+<%}%>
+
 <div class="container" style="min-width: 80%;">
  
 
@@ -30,7 +41,17 @@
             <div>
                 <strong><%=comment.author.name%></strong> - <%=comment.content%>
             </div>
-            <%}) %>
+        <%if(currentUser && comment.author.id.equals(currentUser._id)){%>
+                <a href="/treks/<%=trek._id%>/comments/<%= comment._id%>/edit">
+                    <button class="btn btn-outline-primary">Edit</button>
+                </a>
+        <%}%>
+        <%if(currentUser && comment.author.id.equals(currentUser._id) || currentUser && trek.author.equals(currentUser._id)){%>
+                <form action="/treks/<%=trek._id%>/comments/<%= comment._id%>?_method=DELETE" method="POST">
+                    <button class="btn btn-outline-primary">Delete</button>
+                </form>
+        <%}%>
+        <%}) %>
     <br>
     <div>Add a comment</div>
     <% if(!currentUser){ %>
