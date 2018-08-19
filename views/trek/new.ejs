@@ -1,5 +1,12 @@
 <% include ../partials/header %> 
 <br>
+<%if(errors){%>
+    <div>
+        <% errors.forEach(function(error){%>
+            <%= error.msg %><br>
+        <%})%>
+    </div>
+<%}%>
 <div class="container">
     <form action="/treks" method="POST">
         <div class="form-row row">

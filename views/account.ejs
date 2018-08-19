@@ -1,0 +1,30 @@
+<% include partials/header %>
+<br>
+<div class="container">
+    <div class="row" style="display:flex; flex-wrap:wrap;">
+        <% treks.forEach(function(trek){%>
+            <div class="col-md-3 col-sm-6 border rounded" style="padding-top:5px;padding-bottom: 5px;">
+                <trekture>
+                    <img src="<%=trek.images%>" class="img-fluid img-thumbnail">
+                </trekture>
+                <div class="figure-caption text-left">
+                    <h4>
+                        <%=trek.name%>
+                    </h4>
+                </div>
+                <div class="figure-caption text-left">
+                    <h6>
+                        ₹
+                        <%=trek.cost%>
+                    </h6>
+                </div>
+                <a href="treks/<%= trek._id %>">
+                    <button class="btn bton-theme">More Info</button>
+                </a>
+            </div>
+
+            <%});%>
+    </div>
+</div>
+
+<% include partials/footer %>

@@ -1,5 +1,12 @@
 <% include partials/header %>
 <br>
+<%if(errors){%>
+<div>
+    <% errors.forEach(function(error){%>
+        <%= error%>
+    <%})%>
+</div>
+<%}%>
 <form action="/login" method="POST">
     <input class="form-control" type='email' name="user[email]" placeholder="Username">
     <input class="form-control" type='password' name="user[password]" placeholder="Password">

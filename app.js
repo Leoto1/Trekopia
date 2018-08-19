@@ -4,6 +4,8 @@ var express = require("express");
 var sessions = require("client-sessions");
 var bcrypt= require('bcryptjs');
 var methodOverride = require("method-override");
+var validator= require("express-validator");
+const ejsLint = require('ejs-lint');
 var app = express();
 
 app.use(methodOverride("_method"));
@@ -21,13 +23,15 @@ var Trek= require('./models/Trek.js')
 var User = require('./models/User.js')
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(validator());
 app.use(express.static(__dirname + "/public"));
 
 app.set("view engine", "ejs");
 mongoose.connect("mongodb://localhost:27017/Trekopia", { useNewUrlParser: true });
-
+ejsLint("register");
 app.use((req,res,next)=>{
-    res.locals.currentUser=null
+    res.locals.errors=null;
+    res.locals.currentUser=null;
     if(!(req.session && req.session.userId)){
         return next();
     }
@@ -60,6 +64,19 @@ app.get("/treks", function (req, res) {
 });
 
 app.post("/treks", loginRequired, function (req, res) {
+    var errors = null;
+    req.check('trek[name]', 'Invalid email address').notEmpty().withMessage("Please enter the Email").isEmail();
+    req.check('trek[images]').notEmpty().withMessage("Please enter the Images")
+    req.check('trek[location]').notEmpty().withMessage("Please enter the Location")
+    req.check('trek[cost]', 'Invalid Last Name').notEmpty().withMessage("Please enter the Cost").isNumeric();
+    req.check('trek[days]', 'Invalid Last No. of days').notEmpty().withMessage("Please enter the No. of days").isNumeric();
+    req.check('trek[bestTime]').notEmpty().withMessage("Please enter the Best Time");
+    req.check('trek[description]').notEmpty().withMessage("Please enter the Description")
+    var errors = req.validationErrors();
+    if (errors) {
+        res.render("trek/new", { errors: errors })
+    } else {
+    
     req.body.trek.author=req.user;
     var newTrek = req.body.trek;
 
@@ -70,6 +87,7 @@ app.post("/treks", loginRequired, function (req, res) {
             res.redirect("/treks");
         }
     });
+}
 });
 
 app.get("/treks/new", loginRequired, function (req, res) {
@@ -189,19 +207,32 @@ app.get("/register", function (req, res) {
 });
 
 app.post("/register", (req, res) => {
-    let hash = bcrypt.hashSync(req.body.user.password, 14);
-    req.body.user.password = hash;
-    User.create(req.body.user, (err, user) => {
-        if (err) {
-            let error = "Something bad happened! Please try again.";
-            if (err.code === 11000) {
-                error = "That email is already taken, please try another.";
+    var errors = null;
+    req.check('user[email]', 'Invalid email address').notEmpty().withMessage("Please enter the Email").isEmail();
+    req.check('user[password]').isLength({ min: 4 }).withMessage('must be at least 5 chars long');
+    req.check('user[firstName]', 'Invalid First Name').notEmpty().withMessage("Please enter the First Name").isAlpha();
+    req.check('user[lastName]', 'Invalid Last Name').notEmpty().withMessage("Please enter the Last Name").isAlpha();
+    var errors = req.validationErrors();
+    console.log(errors)
+    if(errors){
+        res.render("register",{errors:errors})
+    }else{
+        let hash = bcrypt.hashSync(req.body.user.password, 14);
+        req.body.user.password = hash;
+        User.create(req.body.user, (err, user) => {
+            if (err) {
+                console.log("ERRRRR\n"+err);
+                
+                let error = err;
+                if (err.code === 11000) {
+                    error = "That email is already taken, please try another.";
+                }
+                return res.render("register", { errors: error });
             }
-            return res.render("register", { error: error });
-        }
-        req.session.userId = user._id;
-        res.redirect("/treks");
-    });
+            req.session.userId = user._id;
+            res.redirect("/treks");
+        });
+    }
 });
 
 app.get("/login", function (req, res) {
@@ -211,12 +242,21 @@ app.get("/login", function (req, res) {
 app.post("/login", (req, res) => {
     User.findOne({ email: req.body.user.email }, (err, user) => {
         if (err || !user || !bcrypt.compareSync(req.body.user.password, user.password)) {
-            return res.render("login", {
-                error: "Incorrect email / password."
-            });
-        }
+            var messages = [];
+            if (!user) {
+                messages.push("Invalid Email");
+            }else{
+                    if(!bcrypt.compareSync(req.body.user.password, user.password)){
+                
+                        messages.push("Invalid Password");
+                    }
+            }
+            res.render("login", { errors: messages });
+            
+        }else{
         req.session.userId = user._id;
         res.redirect("/treks");
+        }
     });
 });
 
@@ -224,6 +264,17 @@ app.get("/logout", (req, res) => {
     req.session.userId = null;
     req.user = null;
     res.redirect("/");
+});
+
+app.get("/account/:id",loginRequired, function (req, res) {
+    Trek.find({ author: req.params.id }, function (err, foundTreks) {
+        if (err) {
+            console.log(err)
+        } else {
+            res.render("account", { treks: foundTreks });
+        }
+
+    })
 });
 
 function isCommentOwned(req, res, next) {

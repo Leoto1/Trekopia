@@ -36,7 +36,6 @@
     </div>
     <hr>
     <h5>Comments</h5>
-    <br>
         <% trek.comments.forEach(function(comment){%>
             <div>
                 <strong><%=comment.author.name%></strong> - <%=comment.content%>
@@ -51,11 +50,11 @@
                     <button class="btn btn-outline-primary">Delete</button>
                 </form>
         <%}%>
+        <br>
         <%}) %>
-    <br>
     <div>Add a comment</div>
     <% if(!currentUser){ %>
-        <div>To adde comment you need to <a href="/login">Log In</a>or<a href="/register">Sign Up</a></div>
+        <div>To add a comment you need to <a href="/login">Log In</a> or <a href="/register">Sign Up</a></div>
     <% } else { %>
     <form class="form-group" action="/treks/<%= trek._id%>/comments" method="POST">
         <div class="form-group">
