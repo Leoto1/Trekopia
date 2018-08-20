@@ -1,21 +1,44 @@
 <% include ../partials/header %>
-<%if(currentUser && trek.author._id.equals(currentUser._id)){%>
-    <div>
-        <a href="/treks/<%=trek._id%>/edit">
-            <button class="btn btn-outline-primary">Edit</button>
-        </a>
-        <form action="/treks/<%=trek._id%>?_method=DELETE" method="POST">
-            <button class="btn btn-outline-primary">Delete</button>
-        </form>
-    </div>
-<%}%>
-
+<br>
 <div class="container" style="min-width: 80%;">
+    <%if(currentUser && trek.author._id.equals(currentUser._id)){%>
+            <div class="list-group-item list-group-item-warning form-inline">
+                <div class ="form-check">
+                <p>It seems you have created this post. Do you want to</p>
+                </div>
+                <div class ="form-check">
+                <a  href="/treks/<%=trek._id%>/edit">
+                    <button class="btn bton-theme">Edit</button>
+                </a>
+                </div>
+                <div class ="form-check">
+                <form action="/treks/<%=trek._id%>?_method=DELETE" method="POST">
+                    <button class="btn bton-theme">Delete</button>
+                </form>
+                </div>
+            </div>
+    <%}%>
  
-
     <br>
-    <div>
+    <div class="row">
+    <div class="col-md-8 col-sm-12">
         <img class="img-fluid" style="min-width: 100%; height:auto" src="<%= trek.images %>">
+    </div>
+    <div  class="col-md-4 col-sm-12">
+        <div id='map'></div>
+        <script>
+            mapboxgl.accessToken = 'pk.eyJ1IjoibWF5YW5rcmFtaW5hIiwiYSI6ImNqbDE0aGNzdTFicnUzd2xtdTdsMXp2eDYifQ.4CD85rpzoEw_kOEKH1KcsQ';
+            const map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mayankramina/cjl164vhj2i8i2smme0wux9pc',
+                center: [<%=trek.lon%>, <%=trek.lat%>],
+                zoom: 10.0
+            });
+            var popup = new mapboxgl.Popup().setText('<%=trek.name%>');
+            var marker = new mapboxgl.Marker().setLngLat([<%=trek.lon%>, <%=trek.lat%>]).setPopup(popup).addTo(map);
+            
+        </script>
+    </div>
     </div>
     <br>
     <div class="row">
@@ -30,6 +53,10 @@
         <h6 class="text-left">
             <%= trek.location %>
         </h6>
+    </div>
+    <hr>
+    <div>
+
     </div>
     <div>
         <%= trek.description %>

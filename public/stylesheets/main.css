@@ -20,3 +20,21 @@
     background-color: #6eff8e;
     color:rgb(0,0,0,0.75);
 }
+.auth-form{
+    margin:20px auto;
+    padding: 10px;
+    max-width: 500px;
+    align-content: center;
+}
+#map {
+        margin-top:20px;
+        height: 150px;  
+        width: 100%; 
+}
+
+@media(min-width:767px){
+    #map{
+    margin-top: 0px;
+    height: 100%; 
+    }
+}

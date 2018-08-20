@@ -8,6 +8,7 @@
     </div>
 <%}%>
 <div class="container">
+    <h2>Add the trek you'll love to trek</h2>
     <form action="/treks" method="POST">
         <div class="form-row row">
             <div class="form-group col-md-6">
@@ -50,6 +51,22 @@
                 </div>
                 <div>
                     <input type="text" class="form-control" name="trek[location]" placeholder="Location">
+                </div>
+            </div>
+            <div class="form-group col-md-3 col-sm-6">
+                <div>
+                    <label>Latitude</label>
+                </div>
+                <div>
+                    <input type="text" class="form-control" name="trek[lat]" placeholder="Latitude">
+                </div>
+            </div>
+            <div class="form-group col-md-3 col-sm-6">
+                <div>
+                    <label>Longitude</label>
+                </div>
+                <div>
+                    <input type="text" class="form-control" name="trek[lon]" placeholder="Longitude">
                 </div>
             </div>
         </div>

@@ -65,7 +65,7 @@ app.get("/treks", function (req, res) {
 
 app.post("/treks", loginRequired, function (req, res) {
     var errors = null;
-    req.check('trek[name]', 'Invalid email address').notEmpty().withMessage("Please enter the Email").isEmail();
+    req.check('trek[name]').notEmpty().withMessage("Please enter the Name");
     req.check('trek[images]').notEmpty().withMessage("Please enter the Images")
     req.check('trek[location]').notEmpty().withMessage("Please enter the Location")
     req.check('trek[cost]', 'Invalid Last Name').notEmpty().withMessage("Please enter the Cost").isNumeric();
@@ -99,6 +99,7 @@ app.get("/treks/:id", function (req, res) {
         if (err) {
             console.log(err);
         } else {
+            console.log(foundTrek)
             res.render("trek/show", { trek: foundTrek });
         }
     });

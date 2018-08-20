@@ -7,6 +7,8 @@ var trekSchema = new mongoose.Schema({
     days: Number,
     bestTime: String,
     images: String,
+    lat:Number,
+    lon:Number,
     description: String,
     comments: [{
         type: mongoose.Schema.Types.ObjectId,

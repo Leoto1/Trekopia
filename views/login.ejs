@@ -7,9 +7,16 @@
     <%})%>
 </div>
 <%}%>
-<form action="/login" method="POST">
+<div class="auth-form border rounded">
+    <h2 class="text-center">Sign In</h2>
+    <form action="/login" method="POST">
+    <div class="form-group">
     <input class="form-control" type='email' name="user[email]" placeholder="Username">
+    </div>
+    <div class="form-group">
     <input class="form-control" type='password' name="user[password]" placeholder="Password">
+    </div>
     <button class="form-control btn bton-theme">Sign In</button>
 </form>
+</div>
 <% include partials/footer %>
