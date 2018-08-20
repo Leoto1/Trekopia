@@ -26,12 +26,10 @@
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarTogglerDemo02">
                 <ul class="nav navbar-nav mt-2 mt-lg-0">
+                    <% if(!currentUser){ %>
                     <li class="nav-item">
                         <a class="nav-link" href="/treks">Treks</a>
                     </li>
-                </ul>
-                <ul class="nav navbar-nav mt-2 mt-lg-0">
-                    <% if(!currentUser){ %>
                     <li class="nav-item">
                         <a class="nav-link" href="/login">Login</a>
                     </li>
@@ -39,6 +37,9 @@
                         <a class="nav-link" href="/register">Sign Up</a>
                     </li>
                     <% } else { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/treks">Treks</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/treks/new">Create a post</a>
                     </li>

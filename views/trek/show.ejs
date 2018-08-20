@@ -2,19 +2,21 @@
 <br>
 <div class="container" style="min-width: 80%;">
     <%if(currentUser && trek.author._id.equals(currentUser._id)){%>
-            <div class="list-group-item list-group-item-warning form-inline">
-                <div class ="form-check">
-                <p>It seems you have created this post. Do you want to</p>
-                </div>
-                <div class ="form-check">
-                <a  href="/treks/<%=trek._id%>/edit">
-                    <button class="btn bton-theme">Edit</button>
-                </a>
-                </div>
-                <div class ="form-check">
-                <form action="/treks/<%=trek._id%>?_method=DELETE" method="POST">
-                    <button class="btn bton-theme">Delete</button>
-                </form>
+            <div class="list-group-item list-group-item-warning">
+                <div class="row justify-content-center">
+                    <div  style="margin-top:5px;margin-right: 5px;">
+                    <h6>It seems you have created this post. Do you want to</h6>
+                    </div>
+                    <div style="margin:0 5px;">
+                    <a  href="/treks/<%=trek._id%>/edit">
+                        <button class="btn btn-sm bton-theme">Edit</button>
+                    </a>
+                    </div>
+                    <div style="margin:0 5px;">
+                    <form action="/treks/<%=trek._id%>?_method=DELETE" method="POST">
+                        <button class="btn btn-sm bton-theme">Delete</button>
+                    </form>
+                    </div>
                 </div>
             </div>
     <%}%>
@@ -55,31 +57,44 @@
         </h6>
     </div>
     <hr>
-    <div>
-
+    <div class="">
+        <div class="form-inline"><h5>Best Time to Visit :</h5><h6> - <%=trek.bestTime%></h6></div>
+        <div class="form-inline"><h5>Days required :</h5><h6> - <%=trek.days%></h6></div>
     </div>
+    <hr>
     <div>
         <%= trek.description %>
     </div>
     <hr>
     <h5>Comments</h5>
-        <% trek.comments.forEach(function(comment){%>
+    <% if(trek.comments==""){ %>
+        <div>Be the first one to add comment on this post! </div>
+    <% } %>
+    <% trek.comments.forEach(function(comment){%>
+        <div class="border rounded" style="padding:10px;margin:5px;max-width:500px;">
             <div>
                 <strong><%=comment.author.name%></strong> - <%=comment.content%>
             </div>
-        <%if(currentUser && comment.author.id.equals(currentUser._id)){%>
-                <a href="/treks/<%=trek._id%>/comments/<%= comment._id%>/edit">
-                    <button class="btn btn-outline-primary">Edit</button>
-                </a>
-        <%}%>
-        <%if(currentUser && comment.author.id.equals(currentUser._id) || currentUser && trek.author.equals(currentUser._id)){%>
-                <form action="/treks/<%=trek._id%>/comments/<%= comment._id%>?_method=DELETE" method="POST">
-                    <button class="btn btn-outline-primary">Delete</button>
-                </form>
-        <%}%>
-        <br>
-        <%}) %>
-    <div>Add a comment</div>
+            <div class="form-inline"style="margin-top:5px;">
+                <%if(currentUser && comment.author.id.equals(currentUser._id)){%>
+                    <div class="form-check"style="margin-right:10px;">   
+                        <a href="/treks/<%=trek._id%>/comments/<%= comment._id%>/edit">
+                            <button class="btn btn-sm bton-theme">Edit</button>
+                        </a>
+                    </div>
+                <%}%>
+                <%if(currentUser && comment.author.id.equals(currentUser._id) || currentUser && trek.author.equals(currentUser._id)){%>
+                    <div class="form-check">
+                        <form action="/treks/<%=trek._id%>/comments/<%= comment._id%>?_method=DELETE" method="POST">
+                            <button class="btn btn-sm bton-theme">Delete</button>
+                        </form>
+                    </div>
+                <%}%>
+            </div>
+        </div>
+    <%}) %>
+    <hr>
+    <h6>Add a comment</h6>
     <% if(!currentUser){ %>
         <div>To add a comment you need to <a href="/login">Log In</a> or <a href="/register">Sign Up</a></div>
     <% } else { %>
