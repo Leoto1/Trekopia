@@ -1,8 +1,11 @@
 <% include ../partials/header %>
-    <div class="container">
+    <div class="auth-form border rounded">
+        <h2 class="text-center">Edit your comment</h2>
         <form action="/treks/<%= trek._id%>/comments/<%= comment._id%>?_method=PUT" method="POST">
-            <input type="text" name="comment[content]" value="<%=comment.content%>">
-            <button class="btn btn-outline-primary">Submit!</button>
+            <div class="form-group">
+                <input class="form-control" type="text" name="comment[content]" value="<%=comment.content%>">
+            </div>
+            <button class="form-control btn bton-theme">Edit!</button>
         </form>
     </div>
 <% include ../partials/footer %>

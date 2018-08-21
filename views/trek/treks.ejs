@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row d-flex justify-content-center" style="display:flex; flex-wrap:wrap;">
             <% treks.forEach(function(trek){%>
-                <div class="card" style="width: 18rem; margin:2.5px;">
+                <div class="card" style="width: 15rem; margin:10px;">
                     <img class="card-img-top" src="<%=trek.images%>">
                     <div class="card-body">
                         <h4 class="card-text text-left">
@@ -18,7 +18,7 @@
                                 <%=trek.cost%>
                             </h6>
                         </div>
-                        <a href="treks/<%= trek._id %>">
+                        <a href="/treks/<%= trek._id %>">
                             <button class="btn bton-theme">More Info</button>
                         </a>
                     </div>
