@@ -1,12 +1,4 @@
 <% include partials/header %>
-<br>
-<%if(errors){%>
-    <div>
-        <% errors.forEach(function(error){ %>
-            <%= error.msg %><br>
-        <% }) %>
-    </div>
-    <%}%>
     <div class="auth-form border rounded">
         <h2 class="text-center">Sign Up</h2>
     <form class="form-group" action="/register" method="POST">

@@ -1,9 +1,8 @@
 <% include ../partials/header %>
-<br>
     <div class="container">
         <div class="row d-flex justify-content-center" style="display:flex; flex-wrap:wrap;">
             <% treks.forEach(function(trek){%>
-                <div class="card" style="width: 15rem; margin:10px;">
+                <div class="card" style="width: 250px; margin:15px; height:auto;">
                     <img class="card-img-top" src="<%=trek.images%>">
                     <div class="card-body">
                         <h4 class="card-text text-left">
@@ -14,8 +13,7 @@
                         </p>
                         <div class="card-text text-left">
                             <h6>
-                                ₹
-                                <%=trek.cost%>
+                                ₹ <%=trek.cost%>
                             </h6>
                         </div>
                         <a href="/treks/<%= trek._id %>">

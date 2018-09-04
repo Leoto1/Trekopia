@@ -62,3 +62,18 @@
     <br>
     <br>
     <br>
+    <br>
+    <div class="container">
+    <%if(success && success.length>0){%>
+        <div class="alert alert-success" role="alert">
+            <%= success%>
+        </div>
+    <%}%>
+    <%if(errors && errors.length>0){%>
+            <% errors.forEach(function(error){%>
+                <div class="alert alert-danger" role="alert">
+                    <%= error%>
+                </div>
+            <%})%>
+    <%}%>
+    </div>

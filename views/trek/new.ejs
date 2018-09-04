@@ -1,12 +1,4 @@
 <% include ../partials/header %> 
-<br>
-<%if(errors){%>
-    <div>
-        <% errors.forEach(function(error){%>
-            <%= error.msg %><br>
-        <%})%>
-    </div>
-<%}%>
 <div class="container">
     <h2>Add the trek you'll love to trek</h2>
     <form action="/treks" method="POST">

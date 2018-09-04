@@ -5,7 +5,7 @@ var sessions = require("client-sessions");
 var bcrypt= require('bcryptjs');
 var methodOverride = require("method-override");
 var validator= require("express-validator");
-const ejsLint = require('ejs-lint');
+var flash = require("connect-flash");
 var app = express();
 
 app.use(methodOverride("_method"));
@@ -25,12 +25,15 @@ var User = require('./models/User.js')
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(validator());
 app.use(express.static(__dirname + "/public"));
+app.use(flash());
 
 app.set("view engine", "ejs");
 mongoose.connect("mongodb://localhost:27017/Trekopia", { useNewUrlParser: true });
-ejsLint("register");
+
+
 app.use((req,res,next)=>{
-    res.locals.errors=null;
+    res.locals.errors=req.flash("errors");
+    res.locals.success = req.flash("success");
     res.locals.currentUser=null;
     if(!(req.session && req.session.userId)){
         return next();
@@ -56,7 +59,8 @@ app.get("/", function (req, res) {
 app.get("/treks", function (req, res) {
     Trek.find({}, function (err, allTrek) {
         if (err) {
-            console.log(err);
+            req.flash("error",["Sorry! we're facing some problem"]);
+            res.redirect("/");
         } else {
             res.render("trek/treks", { treks: allTrek });
         }
@@ -74,7 +78,12 @@ app.post("/treks", loginRequired, function (req, res) {
     req.check('trek[description]').notEmpty().withMessage("Please enter the Description")
     var errors = req.validationErrors();
     if (errors) {
-        res.render("trek/new", { errors: errors })
+        var messages=[];
+        errors.forEach(function(error){
+            messages.push(error.msg);
+        })
+        req.flash("errors",messages);
+        res.redirect("/trek/new")
     } else {
     
     req.body.trek.author=req.user;
@@ -82,8 +91,10 @@ app.post("/treks", loginRequired, function (req, res) {
 
     Trek.create(newTrek, function (err) {
         if (err) {
-            console.log(err);
+            req.flash("errors",["There was a problem while creating the post"]);
+            res.redirect("/treks/new")
         } else {
+            req.flash("success","New post created successfully!")
             res.redirect("/treks");
         }
     });
@@ -97,58 +108,101 @@ app.get("/treks/new", loginRequired, function (req, res) {
 app.get("/treks/:id", function (req, res) {
     Trek.findById(req.params.id).populate("author").populate("comments").exec(function (err, foundTrek) {
         if (err) {
-            console.log(err);
+            req.flash("errors",["Sorry! couldn't find the post."]);
+            res.redirect("/treks");
         } else {
-            console.log(foundTrek)
             res.render("trek/show", { trek: foundTrek });
         }
     });
 });
+
 app.post("/treks/:id/comments", loginRequired, function (req, res) {
-    Trek.findById(req.params.id, function (err, foundTrek) {
-        if (err) {
-            console.log(err);
-        } else {
-            req.body.comment.author={};
-            req.body.comment.author.id = req.user;
-            req.body.comment.author.name=req.user.firstName+" "+req.user.lastName;
-            Comment.create(req.body.comment, function (err, comment) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    foundTrek.comments.push(comment);
-                    foundTrek.save();
-                    res.redirect("/treks/" + foundTrek._id);
-                }
-            });
-        }
-    });
+    req.check('comment[content]', 'Invalid Comment').notEmpty().withMessage("Please enter the Cost").isString();
+    var errors = req.validationErrors();
+    if(errors){
+        var messages = [];
+        errors.forEach(function (error) {
+            messages.push(error.msg);
+        })
+        req.flash("errors", messages);
+        res.redirect("/trek/"+req.params.id)
+        
+    }else{
+        Trek.findById(req.params.id, function (err, foundTrek) {
+            if (err) {
+                req.flash("errors", ["Sorry! there was a problem while adding the comment"]);
+                res.redirect("/treks");
+            } else {
+                req.body.comment.author={};
+                req.body.comment.author.id = req.user;
+                req.body.comment.author.name=req.user.firstName+" "+req.user.lastName;
+                Comment.create(req.body.comment, function (err, comment) {
+                    if (err) {
+                        req.flash("errors", ["Sorry! there was a problem while adding the comment"]);
+                        res.redirect("/treks/"+foundTrek._id);
+                    } else {
+                        foundTrek.comments.push(comment);
+                        foundTrek.save();
+                        req.flash("success", "Comment added successfully");
+                        res.redirect("/treks/" + foundTrek._id);
+                    }
+                });
+            }
+        });
+    }
 });
 
 
 
 app.get("/treks/:id/edit",isTrekOwned,function(req,res){
     Trek.findById(req.params.id,function(err,foundTrek){
+        if (err) {
+            req.flash("errors", ["Sorry! couldn't find the post."]);
+            res.redirect("/treks");
+        } else {
             res.render("trek/edit",{trek:foundTrek});
+        }
     });
 });
 
 app.put("/treks/:id",isTrekOwned,function(req,res){
+    var errors = null;
+    req.check('trek[name]').notEmpty().withMessage("Please enter the Name");
+    req.check('trek[images]').notEmpty().withMessage("Please enter the Images")
+    req.check('trek[location]').notEmpty().withMessage("Please enter the Location")
+    req.check('trek[cost]', 'Invalid Last Name').notEmpty().withMessage("Please enter the Cost").isNumeric();
+    req.check('trek[days]', 'Invalid Last No. of days').notEmpty().withMessage("Please enter the No. of days").isNumeric();
+    req.check('trek[bestTime]').notEmpty().withMessage("Please enter the Best Time");
+    req.check('trek[description]').notEmpty().withMessage("Please enter the Description")
+    var errors = req.validationErrors();
+    if (errors) {
+        var messages = [];
+        errors.forEach(function (error) {
+            messages.push(error.msg);
+        })
+        req.flash("errors", messages);
+        res.redirect("/trek/new")
+    } else {
         Trek.findByIdAndUpdate(req.params.id,req.body.trek,function(err,trek){
         if(err){
-            console.log(err);
+            req.flash("errors", ["Sorry! there was problem while updating the post"]);
+            res.redirect("/treks");
         }else{
+            req.flash("success", "Post updated successfully");
             res.redirect("/treks/"+trek._id);
         }
-    });
+        });
+    }
 });
 
 app.delete("/treks/:id", isTrekOwned,function(req,res){
         Trek.findByIdAndDelete(req.params.id,function(err,trek){
         if(err)
         {
-            console.log(err);
+            req.flash("errors", ["Sorry! there was problem while deleting the post"]);
+            res.redirect("/treks");
         }else{
+            req.flash("success", "Post deleted successfully");
             res.redirect("/treks");
         }
     });
@@ -157,11 +211,13 @@ app.delete("/treks/:id", isTrekOwned,function(req,res){
 app.get("/treks/:id/comments/:comment_id/edit", isCommentOwned, function (req, res) {
     Trek.findById(req.params.id, function (err, foundTrek) {
         if (err) {
-            res.redirect("back");
+            req.flash("errors", ["Sorry! couldn't find the post."]);
+            res.redirect("/treks");
         } else {
             Comment.findById(req.params.comment_id, function (err, foundComment) {
                 if (err) {
-                    res.redirect("back");
+                    req.flash("errors", ["Sorry! couldn't find the comment."]);
+                    res.redirect("/treks/"+foundTrek._id);
                 } else {
                     res.render("comment/edit", { trek: foundTrek, comment: foundComment });
                 }
@@ -170,19 +226,32 @@ app.get("/treks/:id/comments/:comment_id/edit", isCommentOwned, function (req, r
     });
 });
 app.put("/treks/:id/comments/:comment_id", isCommentOwned, function (req, res) {
+    req.check('comment[content]', 'Invalid Comment').notEmpty().withMessage("Please enter the Cost").isString();
+    if (errors) {
+        var messages = [];
+        errors.forEach(function (error) {
+            messages.push(error.msg);
+        })
+        req.flash("errors", messages);
+        res.redirect("/treks/"+req.params.id+"/comments/"+req.params.comment_id)
+    } else {
     Trek.findById(req.params.id, function (err, foundTrek) {
         if (err) {
-            console.log(err);
+            req.flash("errors", ["Sorry! couldn't find the post."]);
+            res.redirect("/treks");
         } else {
             Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, function (err, foundComment) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    res.redirect("/treks/" + foundTrek._id);
+                    if (err) {
+                        req.flash("errors", ["Sorry! there was problem while updating the comment"]);
+                        res.redirect("/treks/" + foundTrek._id);
+                    } else {
+                        req.flash("success", "Comment updated successfully");
+                        res.redirect("/treks/" + foundTrek._id);
                 }
             });
         }
-    });
+        });
+    }
 });
 
 app.delete("/treks/:id/comments/:comment_id", isCommentOwned, function (req, res) {
@@ -192,8 +261,10 @@ app.delete("/treks/:id/comments/:comment_id", isCommentOwned, function (req, res
         } else {
             Comment.findByIdAndDelete(req.params.comment_id, function (err, foundComment) {
                 if (err) {
-                    console.log(err);
+                    req.flash("errors", ["Sorry! there was problem while deleting the comment"]);
+                    res.redirect("/treks/" + foundTrek._id);
                 } else {
+                    req.flash("success", "Comment deleted successfully");
                     res.redirect("/treks/" + foundTrek._id);
                 }
             });
@@ -214,23 +285,27 @@ app.post("/register", (req, res) => {
     req.check('user[firstName]', 'Invalid First Name').notEmpty().withMessage("Please enter the First Name").isAlpha();
     req.check('user[lastName]', 'Invalid Last Name').notEmpty().withMessage("Please enter the Last Name").isAlpha();
     var errors = req.validationErrors();
-    console.log(errors)
     if(errors){
-        res.render("register",{errors:errors})
+        var messages = [];
+        errors.forEach(function (error) {
+            messages.push(error.msg);
+        })
+        req.flash("errors", messages);
+        res.redirect("/register")
     }else{
         let hash = bcrypt.hashSync(req.body.user.password, 14);
         req.body.user.password = hash;
         User.create(req.body.user, (err, user) => {
-            if (err) {
-                console.log("ERRRRR\n"+err);
-                
+            if (err) {                
                 let error = err;
                 if (err.code === 11000) {
-                    error = "That email is already taken, please try another.";
+                    error = ["That email is already taken, please try another."];
                 }
-                return res.render("register", { errors: error });
+                req.flash("errors",error)
+                return res.redirect("/register");
             }
             req.session.userId = user._id;
+            req.flash("success","You've been successfully registered.")
             res.redirect("/treks");
         });
     }
@@ -252,10 +327,12 @@ app.post("/login", (req, res) => {
                         messages.push("Invalid Password");
                     }
             }
-            res.render("login", { errors: messages });
+            req.flash("errors", messages);
+            res.redirect("/login");
             
         }else{
         req.session.userId = user._id;
+        req.flash("success","Succesfully logged in.")
         res.redirect("/treks");
         }
     });
@@ -264,13 +341,15 @@ app.post("/login", (req, res) => {
 app.get("/logout", (req, res) => {
     req.session.userId = null;
     req.user = null;
+    req.flash("success", "Succesfully logged out.")
     res.redirect("/");
 });
 
 app.get("/account/:id",loginRequired, function (req, res) {
     Trek.find({ author: req.params.id }, function (err, foundTreks) {
         if (err) {
-            console.log(err)
+            req.flash('errors',"Sorry! there was problem while loading account details.");
+            req.redirect("treks");
         } else {
             res.render("account", { treks: foundTreks });
         }
@@ -324,6 +403,7 @@ function isTrekOwned(req, res, next) {
 
 function loginRequired(req,res,next){
     if(!req.user){
+        req.flash("errors", ["You need to be logged in to do that!"]);
         return res.redirect("/login");
     }
     next();
